@@ -8,6 +8,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
+	"github.com/AvalosRuben/GoAuth/models"
 	"github.com/joho/godotenv"
 )
 
@@ -46,5 +47,7 @@ func main() {
 	}
 
 	fmt.Println("Database connected :p")
+
+	db.AutoMigrate(&models.User{})
 	
 }
