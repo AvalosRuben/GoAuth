@@ -9,6 +9,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/AvalosRuben/GoAuth/models"
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
@@ -23,6 +24,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	router := gin.Default()
+
 
 	user := os.Getenv("POSTGRES_USER")
 	password := os.Getenv("POSTGRES_PASSWORD")
