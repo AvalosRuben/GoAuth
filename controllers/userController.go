@@ -79,6 +79,12 @@ func Signup(db *gorm.DB)gin.HandlerFunc{
 
 }
 
+func Login(db *gorm.DB)gin.HandlerFunc{
+	return func (c *gin.Context){
+		
+	}
+}
+
 func GetUsers(db *gorm.DB)gin.HandlerFunc{
 	return func (c *gin.Context){
 
