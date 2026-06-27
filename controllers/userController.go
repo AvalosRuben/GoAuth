@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/AvalosRuben/GoAuth/models"
 	"github.com/gin-gonic/gin"
@@ -78,15 +79,23 @@ func Signup(db *gorm.DB)gin.HandlerFunc{
 
 func GetUsers(db *gorm.DB)gin.HandlerFunc{
 	return func (c *gin.Context){
+
+		limit := c.DefaultQuery("limit","10")
+		limitNumber , err := strconv.Atoi(limit)
+
+		if err != nil {
+			log.Panic("Papu error en el parsing: ",err)
+		}
+		
 		var users []models.User
-		result := db.Find(&users)
-		log.Println(result)
+		result := db.Limit(limitNumber).Find(&users)
 
 		if result.Error != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"Papu error":result.Error})
-			return 
+			c.JSON(http.StatusBadRequest, gin.H{"Papu error: ":result.Error})
+			return
 		}
 
 		c.JSON(http.StatusOK,users)
+
 	}
 }
