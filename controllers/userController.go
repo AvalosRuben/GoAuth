@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/AvalosRuben/GoAuth/models"
 	"github.com/gin-gonic/gin"
@@ -74,4 +75,33 @@ func Signup(db *gorm.DB)gin.HandlerFunc{
 		
 	}
 
+}
+
+func GetUsers(db *gorm.DB)gin.HandlerFunc{
+	return func (c *gin.Context){
+
+		limit := c.DefaultQuery("limit","10")
+		limitNumber , err := strconv.Atoi(limit)
+
+		offset := c.DefaultQuery("offset","0")
+		offsetNumber, offErr := strconv.Atoi(offset)
+
+		if offErr != nil {
+			log.Panic("Papu error en el offset: ", err)
+		}
+
+		if err != nil {
+			log.Panic("Papu error en el parsing: ",err)
+		}
+		
+		var users []models.User
+		result := db.Limit(limitNumber).Offset(offsetNumber).Find(&users)
+
+
+		if result.Error != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"Papu error: ":result.Error})
+			return
+		}
+		c.JSON(http.StatusOK,users)
+	}
 }
