@@ -67,9 +67,8 @@ func Signup(db *gorm.DB)gin.HandlerFunc{
 
 		hash, err := HashPassword(user.HashedPassword, p)
 		if err != nil {
-			log.Fatal("error on hash: ", err)
+			c.JSON(http.StatusBadRequest, gin.H{"Papu error on the hash":err.Error()})
 		}
-		
 		
 		user.HashedPassword = hash
 		result := db.Create(&user)
