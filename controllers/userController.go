@@ -48,6 +48,10 @@ func HashPassword(password string, p *params)(hash string, err error){
 
 }
 
+/*
+I gotta fix these two functions, to eventually have just one, where i can (or not) pass
+the salt, so it works on login and sign up
+*/
 func HashPasswordWithSalt(password string, p *params, salt []byte)(hash string, err error){
 
 	rawHash := argon2.IDKey([]byte(password), salt, p.iterations, p.memory, p.parallelism, p.keyLength)
@@ -60,6 +64,11 @@ func HashPasswordWithSalt(password string, p *params, salt []byte)(hash string, 
 
 }
 
+/*
+This function, as it says, compares the input password and the password we get from the
+database, the hashing function automatically combine the hashed password with the salt
+so we gotta separate those two - they are separated with a dolla sign $.
+*/
 func ComparePasswords(password string, hashedPassword string, p *params, c *gin.Context)(isEqual bool){
 	hashAndSalt := strings.Split(hashedPassword, "$")
 	saltString := hashAndSalt[1]
