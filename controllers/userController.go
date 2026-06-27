@@ -31,13 +31,17 @@ func generateRandomBytes(n uint32) ([]byte, error) {
     return b, nil
 }
 
-func HashPassword(password string, p *params)(hash []byte, err error){
+func HashPassword(password string, p *params)(hash string, err error){
 	salt, err := generateRandomBytes(p.saltLength)
     if err != nil {
-        return nil, err
+        return "", err
     }
 
-	hash = argon2.IDKey([]byte(password), salt, p.iterations, p.memory, p.parallelism, p.keyLength)
+	rawHash := argon2.IDKey([]byte(password), salt, p.iterations, p.memory, p.parallelism, p.keyLength)
+	hashString := hex.EncodeToString(rawHash)
+	saltString := hex.EncodeToString(salt)
+
+	hash = hashString + "$" + saltString
 
     return hash, nil
 
@@ -63,12 +67,10 @@ func Signup(db *gorm.DB)gin.HandlerFunc{
 
 		hash, err := HashPassword(user.HashedPassword, p)
 		if err != nil {
-			log.Fatal("error on hash: ", err)
+			c.JSON(http.StatusBadRequest, gin.H{"Papu error on the hash":err.Error()})
 		}
 		
-		encodedHash := hex.EncodeToString(hash)
-		
-		user.HashedPassword = encodedHash
+		user.HashedPassword = hash
 		result := db.Create(&user)
 		log.Println(result)
 
