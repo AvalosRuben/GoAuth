@@ -9,5 +9,4 @@ import (
 func SetupRoutes(router *gin.Engine, db *gorm.DB){
 	router.POST("/signup", controllers.Signup(db))
 	router.GET("/users",controllers.GetUsers(db))
-	
 }
