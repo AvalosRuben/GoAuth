@@ -9,6 +9,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/AvalosRuben/GoAuth/models"
+	"github.com/AvalosRuben/GoAuth/routes"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -26,7 +27,7 @@ func main() {
 	}
 
 	router := gin.Default()
-
+	
 
 	user := os.Getenv("POSTGRES_USER")
 	password := os.Getenv("POSTGRES_PASSWORD")
@@ -51,7 +52,9 @@ func main() {
 	}
 
 	fmt.Println("Database connected :p")
+	routes.SetupRoutes(router,db)
 
 	db.AutoMigrate(&models.User{})
 	
+	router.Run()
 }
