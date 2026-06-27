@@ -75,3 +75,18 @@ func Signup(db *gorm.DB)gin.HandlerFunc{
 	}
 
 }
+
+func GetUsers(db *gorm.DB)gin.HandlerFunc{
+	return func (c *gin.Context){
+		var users []models.User
+		result := db.Find(&users)
+		log.Println(result)
+
+		if result.Error != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"Papu error":result.Error})
+			return 
+		}
+
+		c.JSON(http.StatusOK,users)
+	}
+}
