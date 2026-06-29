@@ -160,6 +160,8 @@ func Login(db *gorm.DB)gin.HandlerFunc{
 		if result.Error != nil {
 			//Dummy hash
 			ComparePasswords(inputUser.HashedPassword, "DummyHash$0c0c36eec95afbee535f774e4e60d72d",p, c)
+			c.JSON(http.StatusUnauthorized, gin.H{"error":"Error on credentials"})
+			return
 		}
 
 		equalPasswords := ComparePasswords(inputUser.HashedPassword, user.HashedPassword,p, c)
