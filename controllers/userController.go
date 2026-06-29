@@ -222,3 +222,9 @@ func GetUsers(db *gorm.DB)gin.HandlerFunc{
 		c.JSON(http.StatusOK,users)
 	}
 }
+
+func GetMe(db* gorm.DB)gin.HandlerFunc{
+	return func (c *gin.Context){
+		
+	}
+}
