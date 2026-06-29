@@ -152,18 +152,20 @@ func Login(db *gorm.DB)gin.HandlerFunc{
 		var user models.User
 		var inputUser models.User
 		if err := c.BindJSON(&inputUser);err!=nil{
-			c.JSON(http.StatusBadRequest, gin.H{"papu error": err.Error()})
+			c.JSON(http.StatusBadRequest, gin.H{"error":"Error on credentials"})
 			return
 		}
 
 		result := db.Where("mail = ?",inputUser.Mail).First(&user)
-		log.Println("result: ",result)
+		if result.Error != nil {
+			//Dummy hash
+			ComparePasswords(inputUser.HashedPassword, "DummyHash$0c0c36eec95afbee535f774e4e60d72d",p, c)
+		}
 
 		equalPasswords := ComparePasswords(inputUser.HashedPassword, user.HashedPassword,p, c)
 
 		if !equalPasswords {
 			c.JSON(http.StatusInternalServerError, gin.H{"error":"Error on credentials"})
-			log.Println("Error Passwords")
 			return 
 		}
 		log.Println("Equal Passwords")
