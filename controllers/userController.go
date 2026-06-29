@@ -5,11 +5,14 @@ import (
 	"encoding/hex"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
 	"github.com/AvalosRuben/GoAuth/models"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt"
+	"github.com/joho/godotenv"
 	"golang.org/x/crypto/argon2"
 	"gorm.io/gorm"
 )
@@ -134,6 +137,22 @@ func Login(db *gorm.DB)gin.HandlerFunc{
     }
 	
 	return func (c *gin.Context){
+
+		var (
+			key []byte
+			t *jwt.Token
+			s string
+		)
+
+		if err := godotenv.Load();err != nil{
+			log.Print("No .env file found")
+		}
+
+		jwt_secret := os.Getenv("JWT_SECRET")
+		key = []byte(jwt_secret)
+		t = jwt.New(jwt.SigningMethodHS256)
+		s = t.SignedString(key)
+
 		var user models.User
 		var inputUser models.User
 		if err := c.BindJSON(&inputUser);err!=nil{
