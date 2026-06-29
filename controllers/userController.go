@@ -3,6 +3,7 @@ package controllers
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -220,5 +221,38 @@ func GetUsers(db *gorm.DB)gin.HandlerFunc{
 			return
 		}
 		c.JSON(http.StatusOK,users)
+	}
+}
+
+func GetMe(db* gorm.DB)gin.HandlerFunc{
+	return func (c *gin.Context){
+		cookieValue, err := c.Cookie("token")
+		if err != nil{
+			c.JSON(http.StatusUnauthorized, gin.H{ "error":"Cookie missing or expired"})
+			return
+		}
+
+		claims := jwt.MapClaims{}
+
+		token, err := jwt.ParseWithClaims(cookieValue, &claims, func(token *jwt.Token) (interface{}, error){
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+        	return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])	
+    	}
+		jwtSecret := os.Getenv("JWT_SECRET")
+    		return []byte(jwtSecret), nil
+		})
+		if err != nil || !token.Valid {
+			c.JSON(http.StatusUnauthorized, gin.H{ "error":"Cookie missing or expired"})
+			c.Abort()
+		}
+
+		user_Id := claims["user_id"]
+
+		var user models.User
+		db.First(&user, user_Id)
+
+		c.JSON(http.StatusAccepted, gin.H{"message": "Cookie read",
+			"name":user.Name,
+			"mail":user.Mail,})
 	}
 }
