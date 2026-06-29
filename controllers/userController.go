@@ -5,11 +5,15 @@ import (
 	"encoding/hex"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/AvalosRuben/GoAuth/models"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/joho/godotenv"
 	"golang.org/x/crypto/argon2"
 	"gorm.io/gorm"
 )
@@ -134,25 +138,58 @@ func Login(db *gorm.DB)gin.HandlerFunc{
     }
 	
 	return func (c *gin.Context){
+
+		var (
+			key []byte
+			t *jwt.Token
+			s string
+		)
+
+		if err := godotenv.Load();err != nil{
+			log.Print("No .env file found")
+		}
+
 		var user models.User
 		var inputUser models.User
 		if err := c.BindJSON(&inputUser);err!=nil{
-			c.JSON(http.StatusBadRequest, gin.H{"papu error": err.Error()})
+			c.JSON(http.StatusBadRequest, gin.H{"error":"Error on credentials"})
 			return
 		}
 
 		result := db.Where("mail = ?",inputUser.Mail).First(&user)
-		log.Println("result: ",result)
+		if result.Error != nil {
+			//Dummy hash
+			ComparePasswords(inputUser.HashedPassword, "DummyHash$0c0c36eec95afbee535f774e4e60d72d",p, c)
+			c.JSON(http.StatusUnauthorized, gin.H{"error":"Error on credentials"})
+			return
+		}
 
 		equalPasswords := ComparePasswords(inputUser.HashedPassword, user.HashedPassword,p, c)
 
-		if equalPasswords {
-			log.Println("Equal")
-		} else{
-			log.Println("Not Equal")
+		if !equalPasswords {
+			c.JSON(http.StatusInternalServerError, gin.H{"error":"Error on credentials"})
+			return 
+		}
+		log.Println("Equal Passwords")
+
+		claims := jwt.MapClaims{
+			"user_id": user.ID,
+			"exp": time.Now().Add(time.Minute *3).Unix(),
+		}
+
+		jwt_secret := os.Getenv("JWT_SECRET")
+		key = []byte(jwt_secret)
+		t = jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		s,err := t.SignedString(key)
+		if err != nil{
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "generating token"})
+			return 
 		}
 		
-		c.JSON(http.StatusOK,inputUser)
+		c.SetCookie("token", s, 180, "/","localhost",false,true)
+		c.JSON(http.StatusOK, gin.H{
+			"message":"Login Succesful",
+		})
 
 	}
 }
