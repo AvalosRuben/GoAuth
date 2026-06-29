@@ -225,6 +225,12 @@ func GetUsers(db *gorm.DB)gin.HandlerFunc{
 
 func GetMe(db* gorm.DB)gin.HandlerFunc{
 	return func (c *gin.Context){
-		
+		cookieValue, err := c.Cookie("token")
+		if err != nil{
+			c.JSON(http.StatusUnauthorized, gin.H{ "error":"Cookie missing or expired"})
+		}
+
+		c.JSON(http.StatusAccepted, gin.H{"message": "Cookie read",
+	"Cookie": cookieValue})
 	}
 }
