@@ -8,10 +8,11 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/AvalosRuben/GoAuth/models"
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/joho/godotenv"
 	"golang.org/x/crypto/argon2"
 	"gorm.io/gorm"
@@ -148,11 +149,6 @@ func Login(db *gorm.DB)gin.HandlerFunc{
 			log.Print("No .env file found")
 		}
 
-		jwt_secret := os.Getenv("JWT_SECRET")
-		key = []byte(jwt_secret)
-		t = jwt.New(jwt.SigningMethodHS256)
-		s = t.SignedString(key)
-
 		var user models.User
 		var inputUser models.User
 		if err := c.BindJSON(&inputUser);err!=nil{
@@ -165,13 +161,31 @@ func Login(db *gorm.DB)gin.HandlerFunc{
 
 		equalPasswords := ComparePasswords(inputUser.HashedPassword, user.HashedPassword,p, c)
 
-		if equalPasswords {
-			log.Println("Equal")
-		} else{
-			log.Println("Not Equal")
+		if !equalPasswords {
+			c.JSON(http.StatusInternalServerError, gin.H{"error":"Error on credentials"})
+			log.Println("Error Passwords")
+			return 
+		}
+		log.Println("Equal Passwords")
+
+		claims := jwt.MapClaims{
+			"user_id": user.ID,
+			"exp": time.Now().Add(time.Minute *3).Unix(),
+		}
+
+		jwt_secret := os.Getenv("JWT_SECRET")
+		key = []byte(jwt_secret)
+		t = jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		s,err := t.SignedString(key)
+		if err != nil{
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "generating token"})
+			return 
 		}
 		
-		c.JSON(http.StatusOK,inputUser)
+		c.JSON(http.StatusOK, gin.H{
+			"message":"Login Succesful",
+			"token": s,
+		})
 
 	}
 }
