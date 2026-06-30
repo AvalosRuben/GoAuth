@@ -157,7 +157,7 @@ func Login(db *gorm.DB)gin.HandlerFunc{
 			return
 		}
 
-		result := db.Where("mail = ?",inputUser.Mail).First(&user)
+		result := db.Where("user_name = ?",inputUser.UserName).First(&user)
 		if result.Error != nil {
 			//Dummy hash
 			ComparePasswords(inputUser.HashedPassword, "DummyHash$0c0c36eec95afbee535f774e4e60d72d",p, c)
@@ -254,7 +254,7 @@ func GetMe(db* gorm.DB)gin.HandlerFunc{
 
 		c.JSON(http.StatusAccepted, gin.H{"message": "Cookie read",
 			"name":user.Name,
-			"mail":user.Mail,})
+			"username":user.UserName,})
 	}
 }
 
