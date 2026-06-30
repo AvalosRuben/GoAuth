@@ -129,11 +129,13 @@ func Signup(db *gorm.DB)gin.HandlerFunc{
 
 		if existsDuplicate  {
 			c.JSON(http.StatusConflict, gin.H{"error":"Username already in use"})
+			return
 		}
 
 		hash, err := HashPassword(user.HashedPassword, p)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"Error on the hash":err.Error()})
+			return
 		}
 		
 		user.HashedPassword = hash
