@@ -173,13 +173,18 @@ func Login(db *gorm.DB)gin.HandlerFunc{
 		inputUser.UserName = c.PostForm("username")
 		inputUser.HashedPassword = c.PostForm("password")
 
+		if inputUser.UserName == "" || inputUser.HashedPassword == "" {
+            c.JSON(http.StatusBadRequest, gin.H{"error": "Username and password are required"})
+            return
+        }
+
 		result := db.Where("user_name = ?",inputUser.UserName).First(&user)
 		if result.Error != nil {
 			//Dummy hash
 			ComparePasswords(inputUser.HashedPassword, "DummyHash$0c0c36eec95afbee535f774e4e60d72d",p, c)
 			c.JSON(http.StatusUnauthorized, gin.H{"error":"Error on credentials"})
 			return
-		}
+		}	
 
 		equalPasswords := ComparePasswords(inputUser.HashedPassword, user.HashedPassword,p, c)
 
