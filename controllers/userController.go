@@ -137,9 +137,9 @@ func Signup(db *gorm.DB)gin.HandlerFunc{
 		}
 		
 		user.HashedPassword = hash
-		result := db.Create(&user)
-		log.Println(result)
+		db.Create(&user)
 
+		c.JSON(http.StatusCreated, gin.H{"message":"User created succesfully!"})
 		
 	}
 
