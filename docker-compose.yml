@@ -1,0 +1,16 @@
+services:
+  postgres_db:
+    image: postgres:16-alpine
+    container_name: go_auth_postgres
+    environment:
+      POSTGRES_USER: ruben_dev
+      POSTGRES_PASSWORD: my_secure_password
+      POSTGRES_DB: go_auth_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
