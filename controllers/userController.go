@@ -97,6 +97,16 @@ func ComparePasswords(password string, hashedPassword string, p *params, c *gin.
 	
 }
 
+func CheckDuplicateUserName(db *gorm.DB, UserName string)(existDuplicate bool){
+
+	var user models.User
+	result := db.Where("user_name = ?", UserName).First(&user)
+	if result.Error != nil {
+		return false
+	}
+	return true
+}
+
 func Signup(db *gorm.DB)gin.HandlerFunc{
 
 	p := &params{
@@ -115,9 +125,15 @@ func Signup(db *gorm.DB)gin.HandlerFunc{
 			return 
 		}
 
+		existsDuplicate := CheckDuplicateUserName(db, user.UserName)
+
+		if existsDuplicate  {
+			c.JSON(http.StatusConflict, gin.H{"error":"Username already in use"})
+		}
+
 		hash, err := HashPassword(user.HashedPassword, p)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"Papu error on the hash":err.Error()})
+			c.JSON(http.StatusBadRequest, gin.H{"Error on the hash":err.Error()})
 		}
 		
 		user.HashedPassword = hash
