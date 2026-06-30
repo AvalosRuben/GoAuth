@@ -226,26 +226,27 @@ func GetUsers(db *gorm.DB)gin.HandlerFunc{
 
 func GetMe(db* gorm.DB)gin.HandlerFunc{
 	return func (c *gin.Context){
+
+		authHeader := c.GetHeader("Authorization")
 		cookieValue, err := c.Cookie("token")
+
+		var tokenString string
+
 		if err != nil{
-			c.JSON(http.StatusUnauthorized, gin.H{ "error":"Cookie missing or expired"})
+			if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Problem with Header or cookie."})
 			return
 		}
-
-		claims := jwt.MapClaims{}
-
-		token, err := jwt.ParseWithClaims(cookieValue, &claims, func(token *jwt.Token) (interface{}, error){
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-        	return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])	
-    	}
-		jwtSecret := os.Getenv("JWT_SECRET")
-    		return []byte(jwtSecret), nil
-		})
-		if err != nil || !token.Valid {
-			c.JSON(http.StatusUnauthorized, gin.H{ "error":"Cookie missing or expired"})
-			c.Abort()
+		tokenString = strings.TrimPrefix(authHeader, "Bearer ")
+		}else{
+			tokenString = cookieValue
 		}
 
+		claims, err := ParseTokens(tokenString)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			return
+		}
 		user_Id := claims["user_id"]
 
 		var user models.User
@@ -255,4 +256,22 @@ func GetMe(db* gorm.DB)gin.HandlerFunc{
 			"name":user.Name,
 			"mail":user.Mail,})
 	}
+}
+
+func ParseTokens(tokenString string) (jwt.MapClaims, error) {
+    claims := jwt.MapClaims{}
+
+    parsedToken, err := jwt.ParseWithClaims(tokenString, &claims, func(token *jwt.Token) (interface{}, error) {
+        if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+            return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])    
+        }
+        jwtSecret := os.Getenv("JWT_SECRET")
+        return []byte(jwtSecret), nil
+    })
+
+    if err != nil || !parsedToken.Valid {
+        return nil, fmt.Errorf("invalid or expired token")
+    }
+
+    return claims, nil
 }
