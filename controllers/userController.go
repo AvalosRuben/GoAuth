@@ -170,10 +170,8 @@ func Login(db *gorm.DB)gin.HandlerFunc{
 
 		var user models.User
 		var inputUser models.User
-		if err := c.BindJSON(&inputUser);err!=nil{
-			c.JSON(http.StatusBadRequest, gin.H{"error":"Error on credentials"})
-			return
-		}
+		inputUser.UserName = c.PostForm("username")
+		inputUser.HashedPassword = c.PostForm("password")
 
 		result := db.Where("user_name = ?",inputUser.UserName).First(&user)
 		if result.Error != nil {
