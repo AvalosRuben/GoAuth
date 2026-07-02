@@ -5,6 +5,8 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const [isAuthenticated, setIsAuthenticaded] = useState(false);
+  const [fetchedName, setFetchedName] = useState("");
+  const [fetchedUserName, setFetchedUserName] = useState("");
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -20,6 +22,7 @@ function Login() {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
+        credentials: "include",
         body: formData,
       });
       const data = await response.json();
@@ -54,6 +57,8 @@ function Login() {
         throw new Error("Error on Get Me");
       }
 
+      setFetchedName(data.name);
+      setFetchedUserName(data.username);
       console.log(data);
     } catch (err) {
       setIsError(true);
@@ -107,9 +112,10 @@ function Login() {
         >
           {loading ? "Loading..." : "GET USER"}
         </button>
-        {isError && (
-          <div className="p-3 rounded-xl bg-background text-go-800 font-bold mx-4 flex items-center justify-center">
-            Error on authorization
+        {!isError && (
+          <div className="p-3 rounded-xl bg-background text-go-800 font-bold mx-4 flex items-center justify-center flex-col">
+            <p>Fetched name: {fetchedName}</p>
+            <p>Fetched username: {fetchedUserName}</p>
           </div>
         )}
       </div>
