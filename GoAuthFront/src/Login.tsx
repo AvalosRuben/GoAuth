@@ -75,7 +75,7 @@ function Login() {
   return (
     <div className="rounded-xl flex flex-col w-1/3 bg-foreground border border-border">
       <div className="border-b border-border p-4 flex items-center justify-center">
-        <h2 className="text-go-600 font-bold text-4xl">SIGN UP</h2>
+        <h2 className="text-go-600 font-bold text-4xl">LOG IN</h2>
       </div>
       <div className="flex flex-col my-4 gap-4 ">
         <div className="flex flex-col px-4 gap-2">
