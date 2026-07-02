@@ -4,6 +4,32 @@ function App() {
   const [name, setName] = useState("name");
   const [username, setUsername] = useState("username");
   const [password, setPassword] = useState("••••••••");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    setLoading(true);
+
+    try {
+      const response = await fetch("http://localhost:8080/signup", {
+        method: "Post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          Name: name,
+          UserName: username,
+          HashedPassowrd: password,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error("Error on fetch");
+      }
+      const data = await response.json();
+      console.log(data);
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
   return (
     <div className="w-full min-h-screen flex items-center justify-center bg-foreground">
       <div className="rounded-xl flex flex-col w-1/3 bg-foreground border border-border">
@@ -38,7 +64,7 @@ function App() {
           </div>
           <button
             className="p-3 rounded-xl bg-go-600 hover:bg-go-700 mx-4 text-background font-bold text-xl"
-            onClick={() => console.log(name, username, password)}
+            onClick={handleSubmit}
           >
             SIGN UP
           </button>
