@@ -5,31 +5,43 @@ function App() {
   const [username, setUsername] = useState("username");
   const [password, setPassword] = useState("••••••••");
   const [loading, setLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [Response, setResponse] = useState("");
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async () => {
     setLoading(true);
+    setIsError(false);
 
     try {
       const response = await fetch("http://localhost:8080/signup", {
-        method: "Post",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           Name: name,
           UserName: username,
-          HashedPassowrd: password,
+          HashedPassword: password,
         }),
       });
+      const data = await response.json();
       if (!response.ok) {
+        setResponse(data.error || "Something went wrong");
         throw new Error("Error on fetch");
       }
-      const data = await response.json();
+
       console.log(data);
+      setResponse(data.message);
     } catch (err) {
-      console.log(err.message);
+      setIsError(true);
+      if (err instanceof Error) {
+        console.log("Error: ", err.message);
+      } else {
+        console.log("An unexpected error occurred:", err);
+      }
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
   return (
     <div className="w-full min-h-screen flex items-center justify-center bg-foreground">
@@ -63,6 +75,11 @@ function App() {
               type="password"
             />
           </div>
+          {isError && (
+            <div className="p-3 rounded-xl bg-background text-go-800 font-bold mx-4 flex items-center justify-center">
+              {Response}
+            </div>
+          )}
           <button
             className="p-3 rounded-xl bg-go-600 hover:bg-go-700 mx-4 text-background font-bold text-xl"
             onClick={handleSubmit}
