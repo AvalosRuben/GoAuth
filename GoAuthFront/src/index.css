@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+@theme {
+  /* Go */
+  --color-go-50: #effcff;
+  --color-go-100: #d6f8ff;
+  --color-go-200: #adefff;
+  --color-go-300: #74e2f5;
+  --color-go-400: #37c9e9;
+  --color-go-500: #00add8;
+  --color-go-600: #0096bc;
+  --color-go-700: #007d9c;
+  --color-go-800: #00617a;
+  --color-go-900: #084d61;
+
+  --color-background: #ffffff;
+  --color-surface: #f8fafc;
+  --color-border: #e2e8f0;
+
+  --color-foreground: #1f2937;
+  --color-muted: #6b7280;
+  --color-muted-foreground: #94a3b8;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply text-foreground font-semibold;
+  }
+
+  code {
+    @apply rounded-md border border-border bg-surface px-2 py-1 text-sm;
+  }
+}
