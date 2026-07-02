@@ -4,11 +4,12 @@ function Login() {
   const [password, setPassword] = useState("password");
   const [loading, setLoading] = useState(false);
   const [isError, setIsError] = useState(false);
-  const [Response, setResponse] = useState("");
+  const [isAuthenticated, setIsAuthenticaded] = useState(false);
 
   const handleSubmit = async () => {
     setLoading(true);
     setIsError(false);
+    setIsAuthenticaded(false);
 
     try {
       const formData = new URLSearchParams();
@@ -23,12 +24,10 @@ function Login() {
       });
       const data = await response.json();
       if (!response.ok) {
-        setResponse(data.error || "Something went wrong");
         throw new Error("Error on fetch");
       }
-
+      setIsAuthenticaded(true);
       console.log(data);
-      setResponse(data.message);
     } catch (err) {
       setIsError(true);
       if (err instanceof Error) {
@@ -64,9 +63,14 @@ function Login() {
             type="password"
           />
         </div>
+        {isAuthenticated && (
+          <div className="p-3 rounded-xl bg-background text-go-800 font-bold mx-4 flex items-center justify-center">
+            User Authenticated!!
+          </div>
+        )}
         {isError && (
           <div className="p-3 rounded-xl bg-background text-go-800 font-bold mx-4 flex items-center justify-center">
-            {Response}
+            Error on authorization
           </div>
         )}
         <button
