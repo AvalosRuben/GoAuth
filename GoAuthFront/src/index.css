@@ -23,11 +23,6 @@
   --color-success: #22c55e;
   --color-warning: #f59e0b;
   --color-error: #ef4444;
-
-  --shadow-card:
-    0 10px 15px -3px rgb(0 173 216 / 0.08), 0 4px 6px -2px rgb(0 0 0 / 0.08);
-
-  --radius-card: 0.75rem;
 }
 
 @layer base {
