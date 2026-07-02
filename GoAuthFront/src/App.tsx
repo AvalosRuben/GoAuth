@@ -29,6 +29,7 @@ function App() {
     } catch (err) {
       console.log(err.message);
     }
+    setLoading(false);
   };
   return (
     <div className="w-full min-h-screen flex items-center justify-center bg-foreground">
@@ -66,7 +67,7 @@ function App() {
             className="p-3 rounded-xl bg-go-600 hover:bg-go-700 mx-4 text-background font-bold text-xl"
             onClick={handleSubmit}
           >
-            SIGN UP
+            {loading ? "Loading..." : "SIGN UP"}
           </button>
         </div>
       </div>
